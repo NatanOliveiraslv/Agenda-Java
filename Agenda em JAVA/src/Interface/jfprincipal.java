@@ -7,9 +7,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.FileOutputStream;
+import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -19,11 +22,19 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
+
 import model.DAO;
 import model.JavaBeans;
+import java.awt.Toolkit;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -89,6 +100,7 @@ public class jfprincipal extends JFrame {
 	 * Create the frame.
 	 */
 	public jfprincipal() {
+		setIconImage(Toolkit.getDefaultToolkit().getImage(jfprincipal.class.getResource("/imagens/Agenda.png")));
 		setTitle("Agenda");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 535, 450);
@@ -253,7 +265,7 @@ public class jfprincipal extends JFrame {
 				txtEmail.setText("");
 			}
 		});
-		btLimpar.setIcon(new ImageIcon("C:\\Users\\famil\\Downloads\\garbage-g7628d18cb_1280 (1).png"));
+		btLimpar.setIcon(new ImageIcon(jfprincipal.class.getResource("/imagens/garbage-g7628d18cb_1280 (1).png")));
 		btLimpar.setBounds(170, 8, 20, 21);
 		contentPane.add(btLimpar);
 		btLimpar.setOpaque(false);
@@ -317,12 +329,12 @@ public class jfprincipal extends JFrame {
 		btReload.setOpaque(false);
 		btReload.setContentAreaFilled(false);
 		btReload.setBorderPainted(false);
-		btReload.setIcon(new ImageIcon("C:\\Users\\famil\\Downloads\\—Pngtree—reload vector icon_4015.png"));
+		btReload.setIcon(new ImageIcon(jfprincipal.class.getResource("/imagens/—Pngtree—reload vector icon_4015.png")));
 		btReload.setBounds(482, 167, 26, 19);
 		contentPane.add(btReload);
 		
 		JButton btPesquisar = new JButton("");
-		btPesquisar.setIcon(new ImageIcon("C:\\Users\\famil\\Downloads\\pngwing.com (1).png"));
+		btPesquisar.setIcon(new ImageIcon(jfprincipal.class.getResource("/imagens/pngwing.com (1).png")));
 		btPesquisar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				for(JavaBeans x : dao.listarContatos()) {
@@ -341,6 +353,51 @@ public class jfprincipal extends JFrame {
 		btPesquisar.setOpaque(false);
 		btPesquisar.setContentAreaFilled(false);
 		btPesquisar.setBorderPainted(false);
+		
+		JButton btRelatorio = new JButton("");
+		btRelatorio.setIcon(new ImageIcon(jfprincipal.class.getResource("/imagens/JasperReports (1).png")));
+		btRelatorio.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				JFileChooser dir = new JFileChooser();
+				dir.setDialogTitle("Escolha o arquivo");
+				dir.setFileSelectionMode(dir.FILES_ONLY);
+				FileNameExtensionFilter file = new FileNameExtensionFilter("Diretório", ".");
+				dir.setFileFilter(file);
+				dir.showSaveDialog(null);
+				System.out.println(dir.getSelectedFile());
+				Document documento = new Document();
+				try {
+					PdfWriter.getInstance(documento, new FileOutputStream(dir.getSelectedFile()+".pdf"));
+					documento.open();
+					documento.add(new Paragraph("Lista de contatos:"));
+					documento.add(new Paragraph(" "));
+					PdfPTable tabela = new PdfPTable(3);
+					PdfPCell col1 = new PdfPCell(new Paragraph("Nome"));
+					PdfPCell col2 = new PdfPCell(new Paragraph("Fone"));
+					PdfPCell col3 = new PdfPCell(new Paragraph("E-mail"));
+					tabela.addCell(col1);
+					tabela.addCell(col2);
+					tabela.addCell(col3);
+					ArrayList<JavaBeans> lista = dao.listarContatos();
+					for(int i = 0; i < lista.size(); i++){
+						tabela.addCell(lista.get(i).getNome());
+						tabela.addCell(lista.get(i).getFone());
+						tabela.addCell(lista.get(i).getEmail());
+					}
+					documento.add(tabela);
+					documento.close();
+				} catch (Exception e1) {
+					System.out.println(e1);
+					documento.close();
+				}
+			}
+		});
+		btRelatorio.setBounds(203, 8, 20, 20);
+		contentPane.add(btRelatorio);
+		btRelatorio.setOpaque(false);
+		btRelatorio.setContentAreaFilled(false);
+		btRelatorio.setBorderPainted(false);
 
 		table.addMouseListener(new MouseAdapter() {
 			@Override
